@@ -288,9 +288,7 @@ function App() {
       {/* ── Sidebar ── */}
       <aside className="sidebar">
         <div className="sb-brand">
-          <div className="sb-logo">
-            <Wallet size={20} />
-          </div>
+          <img src="/logo.png" alt="Logo" className="sb-logo-img" />
           <div className="sb-brand-text">
             <strong>Caisse Salle</strong>
             <span>Gestion quotidienne</span>
@@ -401,6 +399,26 @@ function App() {
           Les montants sont saisis manuellement. Vérifiez les relevés TPE et bancaires séparément.
         </footer>
       </div>
+
+      {/* ── Mobile bottom navigation ── */}
+      <nav className="bottom-nav">
+        <button className={`bn-btn${tab === 'dashboard' ? ' active' : ''}`} onClick={() => setTab('dashboard')}>
+          <LayoutDashboard size={22} /><span>Tableau</span>
+        </button>
+        <button className={`bn-btn${tab === 'transactions' ? ' active' : ''}`} onClick={() => setTab('transactions')}>
+          <ArrowLeftRight size={22} /><span>Opérations</span>
+        </button>
+        <button className={`bn-btn${tab === 'closing' ? ' active' : ''}`} onClick={() => setTab('closing')}>
+          <CalendarDays size={22} /><span>Clôture</span>
+        </button>
+      </nav>
+
+      {/* ── FAB (mobile new operation) ── */}
+      {isAdmin && (
+        <button className="fab" onClick={openNewForm} title="Nouvelle opération">
+          <Plus size={26} />
+        </button>
+      )}
 
       {/* ── Transaction modal ── */}
       {showForm && (
@@ -1037,9 +1055,7 @@ function AuthScreen({ email, setEmail, password, setPassword, onLogin, error, lo
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="auth-logo-mark">
-            <Wallet size={26} />
-          </div>
+          <img src="/logo.png" alt="Logo" className="auth-logo-img" />
         </div>
         <p className="auth-eyebrow">Accès sécurisé</p>
         <h1 className="auth-title">Caisse Salle</h1>

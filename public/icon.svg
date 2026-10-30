@@ -1,1 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#102a43"/><rect x="90" y="115" width="332" height="282" rx="38" fill="#167d75"/><path d="M145 185h222M145 240h125M145 295h190" stroke="#fff" stroke-width="24" stroke-linecap="round"/><circle cx="348" cy="300" r="40" fill="#8ce0cf"/><path d="M348 277v46m-15-34c0-15 30-15 30 0s-30 11-30 25 30 15 30 0" fill="none" stroke="#102a43" stroke-width="8" stroke-linecap="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1f35"/>
+      <stop offset="100%" stop-color="#162e48"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1ab8a8"/>
+      <stop offset="100%" stop-color="#0e6b63"/>
+    </linearGradient>
+    <linearGradient id="coin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="115" fill="url(#bg)"/>
+  <!-- Card shape -->
+  <rect x="80" y="120" width="352" height="240" rx="36" fill="url(#accent)" opacity="0.18"/>
+  <rect x="80" y="120" width="352" height="240" rx="36" fill="none" stroke="url(#accent)" stroke-width="3" opacity="0.4"/>
+  <!-- Card stripe -->
+  <rect x="80" y="178" width="352" height="44" fill="url(#accent)" opacity="0.35"/>
+  <!-- Lines on card -->
+  <rect x="112" y="252" width="90" height="14" rx="7" fill="white" opacity="0.5"/>
+  <rect x="112" y="278" width="60" height="10" rx="5" fill="white" opacity="0.3"/>
+  <!-- Coin circle -->
+  <circle cx="352" cy="340" r="72" fill="url(#coin)" opacity="0.95"/>
+  <circle cx="352" cy="340" r="58" fill="none" stroke="white" stroke-width="4" opacity="0.3"/>
+  <!-- MAD symbol on coin -->
+  <text x="352" y="358" text-anchor="middle" font-family="'Inter',system-ui,sans-serif" font-weight="800" font-size="52" fill="#92400e">د</text>
+</svg>
