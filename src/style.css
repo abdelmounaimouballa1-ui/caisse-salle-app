@@ -1420,20 +1420,20 @@ tbody tr { transition: background var(--tf); }
   }
   .modal {
     width: 100%;
-    max-height: 92vh;
-    border-radius: 20px 20px 0 0;
-    animation: slideUp .28s ease;
+    max-height: 88vh;
+    border-radius: 18px 18px 0 0;
+    animation: slideUp .25s ease;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  /* drag handle indicator */
+  /* drag handle */
   .modal::before {
     content: '';
     display: block;
-    width: 40px; height: 4px;
+    width: 36px; height: 3px;
     background: var(--border-md);
     border-radius: 2px;
-    margin: 10px auto 0;
+    margin: 8px auto 0;
   }
   @keyframes slideUp {
     from { transform: translateY(20px); opacity: 0; }
@@ -1654,24 +1654,55 @@ tbody tr { transition: background var(--tf); }
 @media (max-width: 720px) {
 
   /* Modal body inner spacing */
-  .modal-body .form-row { margin-bottom: 4px; }
-  .modal-body .form-grid { gap: 10px; }
+  .modal-body .form-row { margin-bottom: 2px; }
+  .modal-body .form-grid { gap: 8px; }
 
-  /* Kind selector labels truncate gracefully */
-  .kind-opt span { display: block; line-height: 1.2; }
+  /* Kind selector — compact professional horizontal scroll */
+  .kind-sel {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px; padding: 3px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .kind-opt {
+    padding: 8px 2px;
+    font-size: 9.5px;
+    min-width: 52px;
+    border-radius: 7px;
+  }
+  .kind-opt svg { width: 16px; height: 16px; }
 
-  /* Bigger select arrow */
-  .form-select { background-position: right 12px center; }
+  /* Inputs — reasonable size, not oversized */
+  .form-input, .form-select, .form-textarea {
+    padding: 9px 11px;
+    font-size: 13px;
+  }
+  .form-lbl { font-size: 11px; }
+  .form-row { gap: 5px; }
 
   /* Note textarea shorter on mobile */
-  .form-textarea { min-height: 56px; }
+  .form-textarea { min-height: 48px; }
 
   /* Info hint smaller */
-  .form-hint.info { font-size: 11px; padding: 8px 10px; }
+  .form-hint.info { font-size: 11px; padding: 7px 10px; }
 
   /* confirm dialog */
   .confirm-card .modal-body { padding: 20px 16px 10px; }
   .confirm-icon { width: 40px; height: 40px; margin-bottom: 10px; }
   .confirm-title { font-size: 15px; }
   .confirm-body { font-size: 12px; }
+
+  /* modal eyebrow smaller */
+  .modal-eyebrow { font-size: 9px; margin: 0 0 2px; }
+  .modal-title { font-size: 15px; }
+  .modal-head { padding: 12px 14px 10px; }
+  .modal-body { padding: 0 14px 6px; }
+  .modal-footer {
+    padding: 8px 14px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom, 14px));
+  }
+  .modal-footer .btn {
+    flex: 1; justify-content: center;
+    padding: 11px; font-size: 13px;
+  }
 }
