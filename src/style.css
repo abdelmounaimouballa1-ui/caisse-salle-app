@@ -1389,29 +1389,67 @@ tbody tr { transition: background var(--tf); }
   .tx-lbl { font-size: 12px; }
 
   /* ── Forms ── */
-  .form-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; gap: 12px; }
   .span2 { grid-column: auto; }
-  .kind-sel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .kind-opt { padding: 8px 4px; font-size: 9px; }
+
+  /* Kind selector — 3 cols top row + 2 cols bottom row on mobile */
+  .kind-sel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px; padding: 4px;
+  }
+  .kind-opt {
+    padding: 10px 4px;
+    font-size: 10px;
+    border-radius: 8px;
+  }
+  .kind-opt svg { width: 18px; height: 18px; }
+
+  /* inputs bigger touch targets */
+  .form-input, .form-select, .form-textarea {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  .form-lbl { font-size: 13px; }
+  .form-row { gap: 7px; }
 
   /* ── Modal → bottom sheet ── */
   .modal-bg {
     padding: 0;
     align-items: flex-end;
+    background: rgba(8,20,36,.65);
   }
   .modal {
     width: 100%;
-    max-height: 94vh;
-    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
     animation: slideUp .28s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* drag handle indicator */
+  .modal::before {
+    content: '';
+    display: block;
+    width: 40px; height: 4px;
+    background: var(--border-md);
+    border-radius: 2px;
+    margin: 10px auto 0;
   }
   @keyframes slideUp {
     from { transform: translateY(20px); opacity: 0; }
     to   { transform: translateY(0); opacity: 1; }
   }
-  .modal-head { padding: 16px 16px 12px; }
-  .modal-body { padding: 14px 16px; }
-  .modal-footer { padding: 10px 16px 20px; }
+  .modal-head { padding: 14px 16px 12px; }
+  .modal-body { padding: 0 16px 8px; }
+  .modal-footer {
+    padding: 10px 16px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+    position: sticky; bottom: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    gap: 8px;
+  }
+  .modal-footer .btn { flex: 1; justify-content: center; padding: 13px; font-size: 14px; }
   .modal-title { font-size: 16px; }
 
   /* ── Closing stats 2 cols ── */
@@ -1608,4 +1646,32 @@ tbody tr { transition: background var(--tf); }
   [dir="rtl"] .tb-right { flex-direction: row-reverse; }
   [dir="rtl"] .filters-bar { direction: rtl; }
   [dir="rtl"] .search-wrap input { text-align: right; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE FORM FIXES — extra touch-friendly tweaks
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 720px) {
+
+  /* Modal body inner spacing */
+  .modal-body .form-row { margin-bottom: 4px; }
+  .modal-body .form-grid { gap: 10px; }
+
+  /* Kind selector labels truncate gracefully */
+  .kind-opt span { display: block; line-height: 1.2; }
+
+  /* Bigger select arrow */
+  .form-select { background-position: right 12px center; }
+
+  /* Note textarea shorter on mobile */
+  .form-textarea { min-height: 56px; }
+
+  /* Info hint smaller */
+  .form-hint.info { font-size: 11px; padding: 8px 10px; }
+
+  /* confirm dialog */
+  .confirm-card .modal-body { padding: 20px 16px 10px; }
+  .confirm-icon { width: 40px; height: 40px; margin-bottom: 10px; }
+  .confirm-title { font-size: 15px; }
+  .confirm-body { font-size: 12px; }
 }
