@@ -9,6 +9,7 @@ import {
   ArrowDownCircle, ArrowUpCircle, TrendingUp, TrendingDown,
   LockKeyhole, CircleAlert, CheckCircle2, Info,
   Banknote, Building2, FileText, ShieldCheck, Globe,
+  BarChart2,
 } from 'lucide-react';
 import './style.css';
 
@@ -267,7 +268,12 @@ function App() {
   }
 
   const kindLabel = (k) => tr(k);
-  const pageTitle = { dashboard: tr('overviewTitle'), transactions: tr('transactionsTitle'), closing: tr('closingTitle') };
+  const pageTitle = {
+    dashboard:    tr('overviewTitle'),
+    transactions: tr('transactionsTitle'),
+    closing:      tr('closingTitle'),
+    reports:      tr('reportsTitle'),
+  };
 
   /* ─── routing ─── */
   if (!configured)  return <SetupScreen tr={tr} lang={lang} setLang={setLang} />;
@@ -298,6 +304,9 @@ function App() {
           <span className="sb-section">{tr('accounting')}</span>
           <button className={`nav-btn${tab === 'closing' ? ' active' : ''}`} onClick={() => setTab('closing')}>
             <CalendarDays size={17} /><span>{tr('closing')}</span>
+          </button>
+          <button className={`nav-btn${tab === 'reports' ? ' active' : ''}`} onClick={() => setTab('reports')}>
+            <BarChart2 size={17} /><span>{tr('reports')}</span>
           </button>
         </nav>
 
@@ -373,6 +382,9 @@ function App() {
             <ClosingTab rows={rows} isAdmin={isAdmin} session={session} tr={tr}
               onSaved={() => { loadRows(); showNotice(tr('closingSaved'), 'success'); }} />
           )}
+          {tab === 'reports' && (
+            <ReportsTab rows={rows} tr={tr} lang={lang} />
+          )}
         </div>
 
         <footer className="app-footer">{tr('footer')}</footer>
@@ -385,6 +397,9 @@ function App() {
         </button>
         <button className={`bn-btn${tab === 'transactions' ? ' active' : ''}`} onClick={() => setTab('transactions')}>
           <ArrowLeftRight size={22} /><span>{tr('operations')}</span>
+        </button>
+        <button className={`bn-btn${tab === 'reports' ? ' active' : ''}`} onClick={() => setTab('reports')}>
+          <BarChart2 size={22} /><span>{tr('reports')}</span>
         </button>
         <button className={`bn-btn${tab === 'closing' ? ' active' : ''}`} onClick={() => setTab('closing')}>
           <CalendarDays size={22} /><span>{tr('closing')}</span>
@@ -886,6 +901,270 @@ function TransactionModal({ form, setForm, editId, saving, lang, tr, onKind, onS
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REPORTS TAB
+   ═══════════════════════════════════════════════════════════════ */
+const PERIODS = [
+  { key: 'today',   labelFr: "Aujourd'hui",  labelAr: 'اليوم',      labelEn: 'Today' },
+  { key: 'week',    labelFr: 'Cette semaine', labelAr: 'هذا الأسبوع', labelEn: 'This week' },
+  { key: 'month',   labelFr: 'Ce mois',       labelAr: 'هذا الشهر',  labelEn: 'This month' },
+  { key: 'custom',  labelFr: 'Personnalisé',  labelAr: 'مخصص',       labelEn: 'Custom' },
+];
+
+function ReportsTab({ rows, tr, lang }) {
+  const [period, setPeriod] = useState('month');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo,   setDateTo]   = useState('');
+
+  /* ── compute date range ── */
+  const range = useMemo(() => {
+    const today = todayISO();
+    if (period === 'today')  return { from: today, to: today };
+    if (period === 'week') {
+      const d = new Date(); d.setDate(d.getDate() - d.getDay() + 1);
+      return { from: d.toLocaleDateString('en-CA'), to: today };
+    }
+    if (period === 'month') {
+      const d = new Date(); d.setDate(1);
+      return { from: d.toLocaleDateString('en-CA'), to: today };
+    }
+    return { from: dateFrom || '2020-01-01', to: dateTo || today };
+  }, [period, dateFrom, dateTo]);
+
+  /* ── filter rows ── */
+  const filtered = useMemo(() =>
+    rows.filter(r => r.date >= range.from && r.date <= range.to),
+    [rows, range]
+  );
+
+  /* ── totals ── */
+  const stats = useMemo(() => {
+    const sum = pred => filtered.filter(pred).reduce((s, r) => s + Number(r.amount), 0);
+
+    const cashIn      = sum(r => r.kind === 'income'  && r.payment_method === 'Cash');
+    const cashOut     = sum(r => r.kind === 'expense' && r.payment_method === 'Cash');
+    const tpe         = sum(r => r.kind === 'income'  && r.payment_method === 'Carte TPE');
+    const virement    = sum(r => r.kind === 'income'  && r.payment_method === 'Virement');
+    const cheque      = sum(r => r.kind === 'income'  && r.payment_method === 'Chèque');
+    const deposits    = sum(r => r.kind === 'deposit');
+    const withdrawals = sum(r => r.kind === 'withdrawal');
+    const totalIncome = sum(r => r.kind === 'income');
+    const totalExpense= sum(r => r.kind === 'expense');
+    const net         = totalIncome - totalExpense;
+
+    /* by category */
+    const catMap = {};
+    filtered.forEach(r => {
+      if (!catMap[r.category]) catMap[r.category] = { income: 0, expense: 0 };
+      if (r.kind === 'income')  catMap[r.category].income  += Number(r.amount);
+      if (r.kind === 'expense') catMap[r.category].expense += Number(r.amount);
+    });
+    const categories = Object.entries(catMap)
+      .map(([name, v]) => ({ name, ...v, total: v.income - v.expense }))
+      .sort((a, b) => (b.income + b.expense) - (a.income + a.expense))
+      .slice(0, 8);
+
+    /* by day for the period */
+    const dayMap = {};
+    filtered.forEach(r => {
+      if (!dayMap[r.date]) dayMap[r.date] = { income: 0, expense: 0 };
+      if (r.kind === 'income')  dayMap[r.date].income  += Number(r.amount);
+      if (r.kind === 'expense') dayMap[r.date].expense += Number(r.amount);
+    });
+    const byDay = Object.entries(dayMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, v]) => ({ date, ...v }));
+
+    return { cashIn, cashOut, tpe, virement, cheque, deposits, withdrawals,
+             totalIncome, totalExpense, net, categories, byDay,
+             txCount: filtered.length };
+  }, [filtered]);
+
+  const periodLabel = (p) => {
+    const found = PERIODS.find(x => x.key === p);
+    if (!found) return p;
+    return lang === 'ar' ? found.labelAr : lang === 'en' ? found.labelEn : found.labelFr;
+  };
+
+  /* max for bar chart */
+  const maxBar = Math.max(...stats.byDay.map(d => Math.max(d.income, d.expense)), 1);
+
+  return (
+    <div style={{ paddingTop: 16 }}>
+
+      {/* ── Period selector ── */}
+      <div className="report-period-bar">
+        {PERIODS.map(p => (
+          <button
+            key={p.key}
+            className={`rp-btn${period === p.key ? ' active' : ''}`}
+            onClick={() => setPeriod(p.key)}
+          >
+            {lang === 'ar' ? p.labelAr : lang === 'en' ? p.labelEn : p.labelFr}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Custom date range ── */}
+      {period === 'custom' && (
+        <div className="report-custom-range">
+          <div className="form-row">
+            <label className="form-lbl">{tr('colDate')} début</label>
+            <input type="date" className="form-input"
+              value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+          </div>
+          <div className="form-row">
+            <label className="form-lbl">{tr('colDate')} fin</label>
+            <input type="date" className="form-input"
+              value={dateTo} onChange={e => setDateTo(e.target.value)} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Summary cards ── */}
+      <div className="report-summary">
+        <div className="rs-card green">
+          <div className="rs-icon"><TrendingUp size={16}/></div>
+          <div>
+            <div className="rs-label">{tr('totalIncome')}</div>
+            <div className="rs-value">{money(stats.totalIncome)}</div>
+            <div className="rs-sub">{stats.txCount} opération{stats.txCount > 1 ? 's' : ''}</div>
+          </div>
+        </div>
+        <div className="rs-card red">
+          <div className="rs-icon"><TrendingDown size={16}/></div>
+          <div>
+            <div className="rs-label">{tr('totalExpenses')}</div>
+            <div className="rs-value">{money(stats.totalExpense)}</div>
+          </div>
+        </div>
+        <div className={`rs-card ${stats.net >= 0 ? 'teal' : 'red'}`}>
+          <div className="rs-icon"><Wallet size={16}/></div>
+          <div>
+            <div className="rs-label">Solde net</div>
+            <div className="rs-value">{stats.net >= 0 ? '+' : ''}{money(stats.net)}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Payment methods breakdown ── */}
+      <div className="panel">
+        <div className="panel-head">
+          <div className="panel-head-left">
+            <p className="panel-title">Recettes par méthode de paiement</p>
+            <p className="panel-sub">Total encaissé par canal — {periodLabel(period)}</p>
+          </div>
+        </div>
+        <div className="report-methods">
+          <ReportMethodRow icon={<Banknote size={16}/>}  cls="cash"     label="Cash"       income={stats.cashIn}   expense={stats.cashOut} showExpense />
+          <ReportMethodRow icon={<CreditCard size={16}/>} cls="tpe"     label="Carte TPE"  income={stats.tpe} />
+          <ReportMethodRow icon={<Building2 size={16}/>}  cls="virement" label="Virement"   income={stats.virement} />
+          <ReportMethodRow icon={<FileText size={16}/>}   cls="cheque"   label="Chèque"     income={stats.cheque} />
+          <ReportMethodRow icon={<ArrowDownCircle size={16}/>} cls="depot" label="Dépôts banque" income={stats.deposits} isneutral />
+          <ReportMethodRow icon={<ArrowUpCircle size={16}/>}   cls="retrait" label="Retraits banque" income={stats.withdrawals} isneutral />
+        </div>
+      </div>
+
+      {/* ── Daily bar chart ── */}
+      {stats.byDay.length > 0 && (
+        <div className="panel">
+          <div className="panel-head">
+            <div className="panel-head-left">
+              <p className="panel-title">Évolution journalière</p>
+              <p className="panel-sub">Recettes vs dépenses par jour</p>
+            </div>
+            <div className="chart-legend">
+              <span className="legend-dot green" /> Recettes
+              <span className="legend-dot red" style={{ marginLeft: 10 }} /> Dépenses
+            </div>
+          </div>
+          <div className="chart-wrap">
+            {stats.byDay.map(d => (
+              <div key={d.date} className="chart-col">
+                <div className="chart-bars">
+                  <div className="chart-bar income"
+                    style={{ height: `${Math.round((d.income / maxBar) * 100)}%` }}
+                    title={`${fmtDate(d.date)}: +${money(d.income)}`}
+                  />
+                  <div className="chart-bar expense"
+                    style={{ height: `${Math.round((d.expense / maxBar) * 100)}%` }}
+                    title={`${fmtDate(d.date)}: -${money(d.expense)}`}
+                  />
+                </div>
+                <div className="chart-label">
+                  {new Date(d.date + 'T12:00:00').toLocaleDateString('fr-MA', { day: '2-digit', month: '2-digit' })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Top categories ── */}
+      {stats.categories.length > 0 && (
+        <div className="panel">
+          <div className="panel-head">
+            <div className="panel-head-left">
+              <p className="panel-title">Top catégories</p>
+              <p className="panel-sub">Répartition des opérations par catégorie</p>
+            </div>
+          </div>
+          <div className="report-categories">
+            {stats.categories.map(c => {
+              const total = c.income + c.expense;
+              const maxCat = Math.max(...stats.categories.map(x => x.income + x.expense), 1);
+              const pct = Math.round((total / maxCat) * 100);
+              return (
+                <div key={c.name} className="rcat-row">
+                  <div className="rcat-name">{c.name}</div>
+                  <div className="rcat-bar-wrap">
+                    <div className="rcat-bar" style={{ width: `${pct}%` }} />
+                  </div>
+                  <div className="rcat-amounts">
+                    {c.income > 0 && <span className="pos">+{money(c.income)}</span>}
+                    {c.expense > 0 && <span className="neg">−{money(c.expense)}</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {filtered.length === 0 && (
+        <div className="panel">
+          <div className="empty-state">
+            <div className="empty-icon"><BarChart2 size={22}/></div>
+            <h3>Aucune donnée</h3>
+            <p>Aucune opération trouvée pour cette période.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReportMethodRow({ icon, cls, label, income, expense = 0, showExpense = false, isneutral = false }) {
+  if (income === 0 && expense === 0) return null;
+  return (
+    <div className={`rmr ${cls}`}>
+      <div className={`rmr-icon ${cls}`}>{icon}</div>
+      <div className="rmr-label">{label}</div>
+      <div className="rmr-amounts">
+        {income > 0 && (
+          <span className={isneutral ? 'rmr-neutral' : 'rmr-income'}>
+            {isneutral ? '' : '+'}{money(income)}
+          </span>
+        )}
+        {showExpense && expense > 0 && (
+          <span className="rmr-expense">−{money(expense)}</span>
+        )}
       </div>
     </div>
   );

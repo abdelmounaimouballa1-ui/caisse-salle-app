@@ -1795,3 +1795,185 @@ tbody tr { transition: background var(--tf); }
     padding: 11px; font-size: 13px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   REPORTS TAB
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Period selector ── */
+.report-period-bar {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.rp-btn {
+  padding: 7px 16px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--t-mid);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: background var(--tf), border-color var(--tf), color var(--tf);
+}
+.rp-btn:hover { background: var(--bg-subtle); border-color: var(--border-md); }
+.rp-btn.active {
+  background: var(--brand); color: #fff;
+  border-color: var(--brand);
+  box-shadow: 0 2px 8px var(--brand-glow);
+}
+
+/* ── Custom range ── */
+.report-custom-range {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px; margin-bottom: 14px;
+}
+
+/* ── Summary cards ── */
+.report-summary {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 14px;
+}
+.rs-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 14px;
+  display: flex; align-items: flex-start; gap: 12px;
+  box-shadow: var(--sh-sm);
+}
+.rs-icon {
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: var(--r-md);
+  display: grid; place-items: center;
+}
+.rs-card.green .rs-icon { background: var(--green-bg); color: var(--green); }
+.rs-card.red   .rs-icon { background: var(--red-bg);   color: var(--red); }
+.rs-card.teal  .rs-icon { background: var(--brand-light); color: var(--brand); }
+.rs-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; color: var(--t-low); margin-bottom: 4px; }
+.rs-value { font-size: 16px; font-weight: 700; letter-spacing: -.5px; font-variant-numeric: tabular-nums; color: var(--t-hi); }
+.rs-sub   { font-size: 10px; color: var(--t-faint); margin-top: 3px; }
+.rs-card.red   .rs-value { color: var(--red); }
+.rs-card.teal  .rs-value { color: var(--brand); }
+
+/* ── Method rows ── */
+.report-methods {
+  padding: 4px 0 8px;
+}
+.rmr {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--tf);
+}
+.rmr:last-child { border-bottom: none; }
+.rmr:hover { background: var(--bg-subtle); }
+.rmr-icon {
+  width: 32px; height: 32px; flex-shrink: 0;
+  border-radius: var(--r-sm);
+  display: grid; place-items: center;
+}
+.rmr-icon.cash     { background: var(--cash-bg);  color: var(--cash-c); }
+.rmr-icon.tpe      { background: var(--tpe-bg);   color: var(--tpe-c); }
+.rmr-icon.virement { background: var(--vir-bg);   color: var(--vir-c); }
+.rmr-icon.cheque   { background: var(--chq-bg);   color: var(--chq-c); }
+.rmr-icon.depot    { background: var(--dep-bg);   color: var(--dep-c); }
+.rmr-icon.retrait  { background: var(--wdr-bg);   color: var(--wdr-c); }
+.rmr-label {
+  flex: 1; font-size: 13px; font-weight: 500; color: var(--t-hi);
+}
+.rmr-amounts {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.rmr-income  { color: var(--green); }
+.rmr-expense { color: var(--red); }
+.rmr-neutral { color: var(--t-mid); }
+
+/* ── Bar chart ── */
+.chart-wrap {
+  display: flex; align-items: flex-end; gap: 4px;
+  padding: 12px 20px 10px;
+  min-height: 140px; overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.chart-col {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; flex: 1; min-width: 28px; max-width: 52px;
+}
+.chart-bars {
+  display: flex; align-items: flex-end; gap: 2px;
+  height: 100px; width: 100%;
+}
+.chart-bar {
+  flex: 1; border-radius: 4px 4px 0 0;
+  min-height: 2px;
+  transition: height .3s ease;
+}
+.chart-bar.income  { background: var(--green); opacity: .85; }
+.chart-bar.expense { background: var(--red);   opacity: .75; }
+.chart-label {
+  font-size: 9px; color: var(--t-faint); font-weight: 500;
+  white-space: nowrap;
+}
+.chart-legend {
+  display: flex; align-items: center;
+  font-size: 11px; color: var(--t-mid); font-weight: 500;
+  flex-shrink: 0;
+}
+.legend-dot {
+  display: inline-block;
+  width: 8px; height: 8px; border-radius: 50%;
+  margin-inline-end: 4px;
+}
+.legend-dot.green { background: var(--green); }
+.legend-dot.red   { background: var(--red); }
+
+/* ── Top categories ── */
+.report-categories { padding: 8px 20px 16px; }
+.rcat-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rcat-row:last-child { border-bottom: none; }
+.rcat-name {
+  font-size: 12px; font-weight: 500; color: var(--t-hi);
+  min-width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rcat-bar-wrap {
+  flex: 1; height: 6px; background: var(--bg-subtle);
+  border-radius: 3px; overflow: hidden;
+}
+.rcat-bar {
+  height: 100%; background: var(--brand);
+  border-radius: 3px; opacity: .7;
+  transition: width .4s ease;
+}
+.rcat-amounts {
+  display: flex; gap: 8px;
+  font-size: 11px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.rcat-amounts .pos { color: var(--green); }
+.rcat-amounts .neg { color: var(--red); }
+
+/* ── Mobile reports ── */
+@media (max-width: 720px) {
+  .report-summary { grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px; }
+  .rs-card { padding: 12px; }
+  .rs-value { font-size: 15px; }
+  .report-custom-range { grid-template-columns: 1fr; gap: 8px; padding: 12px; }
+  .report-period-bar { gap: 5px; }
+  .rp-btn { padding: 6px 12px; font-size: 11px; }
+  .rmr { padding: 10px 14px; gap: 10px; }
+  .rmr-label { font-size: 12px; }
+  .rmr-amounts { font-size: 12px; }
+  .rcat-name { min-width: 80px; font-size: 11px; }
+  .chart-wrap { padding: 10px 14px 8px; }
+  .chart-bars { height: 80px; }
+}

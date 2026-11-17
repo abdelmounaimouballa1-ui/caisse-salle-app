@@ -629,7 +629,16 @@ export const t = {
     en: 'Your account is connected, but no profile with a role is configured. Ask the administrator to add your row in the profiles table.',
   },
 
-  /* ─── Setup ───────────────────────────────────────────────── */
+  reportsTitle: {
+    fr: 'Rapports & Statistiques',
+    ar: 'التقارير والإحصاءات',
+    en: 'Reports & Statistics',
+  },
+  reports: {
+    fr: 'Rapports',
+    ar: 'تقارير',
+    en: 'Reports',
+  },
   setupTitle: {
     fr: 'Connexion Supabase requise',
     ar: 'مطلوب اتصال Supabase',
